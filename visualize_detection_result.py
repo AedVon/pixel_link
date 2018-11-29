@@ -1,48 +1,53 @@
 #encoding utf-8
-
+##
+import sys
+sys.path.append('/workspace/mnt/group/ocr/qiutairu/code/pixel_link/pylib/src')
+##
 import numpy as np
 import util
 
 
-def draw_bbox(image_data, line, color):
+def draw_bbox(image_data, line, color, border_width):
     line = util.str.remove_all(line, '\xef\xbb\xbf')
     data = line.split(',');
     points = [int(v) for v in data[0:8]]
     points = np.reshape(points, (4, 2))
     cnts = util.img.points_to_contours(points)
-    util.img.draw_contours(image_data, cnts, -1, color = color, border_width = 3)
-    
-       
-def visualize(image_root, det_root, output_root, gt_root = None):
+    util.img.draw_contours(image_data, cnts, -1, color=color, border_width=border_width)
+
+
+def visualize(image_root, det_root, output_root, gt_root=None):
     def read_gt_file(image_name):
-        gt_file = util.io.join_path(gt_root, 'gt_%s.txt'%(image_name))
+        gt_file = util.io.join_path(gt_root, 'gt_%s.txt' % (image_name))
         return util.io.read_lines(gt_file)
 
     def read_det_file(image_name):
-        det_file = util.io.join_path(det_root, 'res_%s.txt'%(image_name))
+        det_file = util.io.join_path(det_root, 'res_%s.txt' % (image_name))
         return util.io.read_lines(det_file)
-    
+
     def read_image_file(image_name):
         return util.img.imread(util.io.join_path(image_root, image_name))
-    
+
     image_names = util.io.ls(image_root, '.jpg')
+    image_names = [image_name for image_name in image_names if image_name[0] != '.']
+
     for image_idx, image_name in enumerate(image_names):
-        print '%d / %d: %s'%(image_idx + 1, len(image_names), image_name)
-        image_data = read_image_file(image_name) # in BGR
+        print('%d / %d: %s' % (image_idx + 1, len(image_names), image_name))
+        image_data = read_image_file(image_name)  # in BGR
         image_name = image_name.split('.')[0]
-        det_image = image_data.copy()
         det_lines = read_det_file(image_name)
-        for line in det_lines:
-            draw_bbox(det_image, line, color = util.img.COLOR_GREEN)
-        output_path = util.io.join_path(output_root, '%s_pred.jpg'%(image_name))
-        util.img.imwrite(output_path, det_image)
-        print "Detection result has been written to ", util.io.get_absolute_path(output_path)
-        
+        gt_lines = read_gt_file(image_name)
+
         if gt_root is not None:
-            gt_lines = read_gt_file(image_name)
             for line in gt_lines:
-                draw_bbox(image_data, line, color = util.img.COLOR_GREEN)
-            util.img.imwrite(util.io.join_path(output_root, '%s_gt.jpg'%(image_name)), image_data)
+                draw_bbox(image_data, line, color=util.img.COLOR_BGR_RED, border_width=2)
+
+        for line in det_lines:
+            draw_bbox(image_data, line, color=util.img.COLOR_GREEN, border_width=1)
+
+        output_path = util.io.join_path(output_root, '%s_pred.jpg' % (image_name))
+        util.img.imwrite(output_path, image_data)
+        print("Detection result has been written to ", util.io.get_absolute_path(output_path))
 
 if __name__ == '__main__':
     import argparse

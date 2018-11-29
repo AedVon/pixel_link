@@ -1,9 +1,10 @@
+#!/usr/bin/env bash
 set -x
 set -e
 export CUDA_VISIBLE_DEVICES=$1
 IMG_PER_GPU=$2
 
-TRAIN_DIR=${HOME}/models/pixel_link
+TRAIN_DIR=/workspace/mnt/group/ocr/qiutairu/code/pixel_link
 
 # get the number of gpus
 OLD_IFS="$IFS" 
@@ -19,9 +20,9 @@ BATCH_SIZE=`expr $NUM_GPUS \* $IMG_PER_GPU`
 #DATASET_PATH=SynthText
 
 DATASET=icdar2015
-DATASET_DIR=$HOME/dataset/pixel_link/icdar2015
+DATASET_DIR=/workspace/mnt/group/ocr/qiutairu/dataset/ICDAR_2015_tfrecord
 
-python train_pixel_link.py \
+python /workspace/mnt/group/ocr/qiutairu/code/pixel_link/train_pixel_link.py \
             --train_dir=${TRAIN_DIR} \
             --num_gpus=${NUM_GPUS} \
             --learning_rate=1e-3\
@@ -36,7 +37,7 @@ python train_pixel_link.py \
             --checkpoint_path=${CKPT_PATH} \
             --using_moving_average=1
 
-python train_pixel_link.py \
+python /workspace/mnt/group/ocr/qiutairu/code/pixel_link/train_pixel_link.py \
             --train_dir=${TRAIN_DIR} \
             --num_gpus=${NUM_GPUS} \
             --learning_rate=1e-2\

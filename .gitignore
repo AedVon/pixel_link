@@ -102,6 +102,7 @@ ENV/
 
 # added
 .DS_Store
+.idea
 /vis_result
 /model
 /checkpoint

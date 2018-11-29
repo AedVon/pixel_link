@@ -1,5 +1,8 @@
 #test code to make sure the ground truth calculation and data batch works well.
-
+##
+import sys
+sys.path.append('/workspace/mnt/group/ocr/qiutairu/code/pixel_link/pylib/src')
+##
 import numpy as np
 import tensorflow as tf # test
 from tensorflow.python.ops import control_flow_ops

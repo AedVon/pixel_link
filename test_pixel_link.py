@@ -1,5 +1,9 @@
 #encoding = utf-8
-
+##
+import sys
+sys.path.append('/workspace/mnt/group/ocr/qiutairu/code/pixel_link/pylib/src')
+import os
+##
 import numpy as np
 import math
 import tensorflow as tf
@@ -77,7 +81,19 @@ def config_initialization():
                    )
     
     util.proc.set_proc_name('test_pixel_link_on'+ '_' + FLAGS.dataset_name)
-    
+
+
+def to_scoremap(name, data, output_path, mask=False):
+    # (192, 320)
+    # threshold = config.pixel_conf_threshold
+    threshold = 0.2
+    img = np.array([[1.0 if pixel >= threshold else 0.0 for pixel in col] for col in data[0]])
+    img.reshape(data[0].shape)
+    img = img*[255]
+
+    # print(img)
+    img = img.astype(np.int32)
+    util.img.imwrite(os.path.join(output_path, name+'_sm.jpg'), img)
 
 
 def to_txt(txt_path, image_name, 
@@ -132,6 +148,9 @@ def test():
     
     
     image_names = util.io.ls(FLAGS.dataset_dir)
+    ##
+    image_names = [image_name for image_name in image_names if image_name[0] != '.']
+    ##
     image_names.sort()
     
     checkpoint = FLAGS.checkpoint_path
@@ -154,6 +173,12 @@ def test():
             })
                
             print '%d/%d: %s'%(iter + 1, len(image_names), image_name)
+
+            ##
+            output_path = os.path.join(os.getcwd(), 'vis_result')
+            to_scoremap(image_name, pixel_pos_scores, output_path)
+            ##
+
             to_txt(txt_path,
                     image_name, image_data, 
                     pixel_pos_scores, link_pos_scores)
