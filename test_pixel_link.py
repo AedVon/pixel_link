@@ -86,14 +86,14 @@ def config_initialization():
 def to_scoremap(name, data, output_path, mask=False):
     # (192, 320)
     # threshold = config.pixel_conf_threshold
-    threshold = 0.2
+    threshold = config.pixel_conf_threshold
     img = np.array([[1.0 if pixel >= threshold else 0.0 for pixel in col] for col in data[0]])
     img.reshape(data[0].shape)
     img = img*[255]
 
     # print(img)
     img = img.astype(np.int32)
-    util.img.imwrite(os.path.join(output_path, name+'_sm.jpg'), img)
+    util.img.imwrite(os.path.join(output_path, name+'_sm_'+str(threshold)+'.jpg'), img)
 
 
 def to_txt(txt_path, image_name, 
@@ -180,10 +180,10 @@ def test():
             ##
 
             to_txt(txt_path,
-                    image_name, image_data, 
+                    image_name, image_data,
                     pixel_pos_scores, link_pos_scores)
 
-            
+
     # create zip file for icdar2015
     cmd = 'cd %s;zip -j %s %s/*'%(dump_path, zip_path, txt_path);
     print cmd

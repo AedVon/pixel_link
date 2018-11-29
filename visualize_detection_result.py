@@ -16,6 +16,16 @@ def draw_bbox(image_data, line, color, border_width):
     util.img.draw_contours(image_data, cnts, -1, color=color, border_width=border_width)
 
 
+def draw_gt_bbox(image_data, line, color, border_width):
+    line = util.str.remove_all(line, '\xef\xbb\xbf')
+    if line.split(',')[-1] != '###\n':
+        data = line.split(',')
+        points = [int(v) for v in data[0:8]]
+        points = np.reshape(points, (4, 2))
+        cnts = util.img.points_to_contours(points)
+        util.img.draw_contours(image_data, cnts, -1, color=color, border_width=border_width)
+
+
 def visualize(image_root, det_root, output_root, gt_root=None):
     def read_gt_file(image_name):
         gt_file = util.io.join_path(gt_root, 'gt_%s.txt' % (image_name))
@@ -40,7 +50,7 @@ def visualize(image_root, det_root, output_root, gt_root=None):
 
         if gt_root is not None:
             for line in gt_lines:
-                draw_bbox(image_data, line, color=util.img.COLOR_BGR_RED, border_width=2)
+                draw_gt_bbox(image_data, line, color=util.img.COLOR_BGR_RED, border_width=2)
 
         for line in det_lines:
             draw_bbox(image_data, line, color=util.img.COLOR_GREEN, border_width=1)
