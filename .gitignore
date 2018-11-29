@@ -99,3 +99,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# added
+.DS_Store
+/vis_result
+/model
+/checkpoint
