@@ -1,5 +1,10 @@
 #encoding = utf-8
-
+##
+import sys
+sys.path.append('/workspace/mnt/group/ocr/qiutairu/code/pixel_link/pylib/src')
+import os
+from time import time
+##
 import numpy as np
 import math
 import tensorflow as tf
@@ -32,6 +37,14 @@ tf.app.flags.DEFINE_float('gpu_memory_fraction', -1,
 # =========================================================================== #
 tf.app.flags.DEFINE_string(
     'dataset_dir', 'None', 
+    'The directory where the dataset files are stored.')
+
+
+# =========================================================================== #
+# Output Flags.
+# =========================================================================== #
+tf.app.flags.DEFINE_string(
+    'output_dir', 'None',
     'The directory where the dataset files are stored.')
 
 tf.app.flags.DEFINE_integer('eval_image_width', None, 'resized image width for inference')
@@ -113,6 +126,7 @@ def test():
             link_scores, pixel_scores, mask_vals = sess.run(
                     [net.link_pos_scores, net.pixel_pos_scores, masks],
                     feed_dict = {image: image_data})
+
             h, w, _ =image_data.shape
             def resize(img):
                 return util.img.resize(img, size = (w, h), 
@@ -132,14 +146,16 @@ def test():
             mask = mask_vals[image_idx, ...]
 
             bboxes_det = get_bboxes(mask)
-            
+
             mask = resize(mask)
             pixel_score = resize(pixel_score)
 
             draw_bboxes(image_data, bboxes_det, util.img.COLOR_RGB_RED)
 #             print util.sit(pixel_score)
 #             print util.sit(mask)
-            print util.sit(image_data)
+            output_name = image_name.split('.')[0]+'_pred.'+image_name.split('.')[-1]
+            output_path = os.path.join(FLAGS.output_dir, output_name)
+            print util.sit(image_data, path=output_path)
                 
         
 def main(_):

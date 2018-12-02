@@ -105,4 +105,4 @@ ENV/
 .idea
 /vis_result
 /model
-/checkpoint
+/checkpoints

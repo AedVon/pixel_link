@@ -3,6 +3,7 @@
 import sys
 sys.path.append('/workspace/mnt/group/ocr/qiutairu/code/pixel_link/pylib/src')
 import os
+from time import time
 ##
 import numpy as np
 import math
@@ -85,15 +86,24 @@ def config_initialization():
 
 def to_scoremap(name, data, output_path, mask=False):
     # (192, 320)
+    img = data[0]
+
     # threshold = config.pixel_conf_threshold
-    threshold = config.pixel_conf_threshold
-    img = np.array([[1.0 if pixel >= threshold else 0.0 for pixel in col] for col in data[0]])
-    img.reshape(data[0].shape)
+    threshold = 0.5
+    if mask:
+        img = np.array([[1.0 if pixel >= threshold else 0.0 for pixel in col] for col in img])
+        img.reshape(data[0].shape)
+
     img = img*[255]
 
     # print(img)
     img = img.astype(np.int32)
     util.img.imwrite(os.path.join(output_path, name+'_sm_'+str(threshold)+'.jpg'), img)
+
+def to_mask(name, data, output_path):
+    img = data*[255]
+    img = img.astype(np.int32)
+    util.img.imwrite(os.path.join(output_path, name+'_mk.jpg'), img)
 
 
 def to_txt(txt_path, image_name, 
@@ -108,9 +118,16 @@ def to_txt(txt_path, image_name,
               lines.append(line)
         util.io.write_lines(filename, lines)
         print 'result has been written to:', filename
-    
+
+    start_time = time()
     mask = pixel_link.decode_batch(pixel_pos_scores, link_pos_scores)[0, ...]
     bboxes = pixel_link.mask_to_bboxes(mask, image_data.shape)
+    end_time = time()
+    print(image_name, ' cost time: ', end_time-start_time)
+    # ##
+    # output_path = os.path.join(os.getcwd(), 'vis_result')
+    # to_mask(image_name, mask, output_path)
+    # ##
     write_result_as_txt(image_name, bboxes, txt_path)
 
 def test():
@@ -174,10 +191,10 @@ def test():
                
             print '%d/%d: %s'%(iter + 1, len(image_names), image_name)
 
-            ##
-            output_path = os.path.join(os.getcwd(), 'vis_result')
-            to_scoremap(image_name, pixel_pos_scores, output_path)
-            ##
+            # ##
+            # output_path = os.path.join(os.getcwd(), 'vis_result')
+            # to_scoremap(image_name, pixel_pos_scores, output_path, mask=True)
+            # ##
 
             to_txt(txt_path,
                     image_name, image_data,

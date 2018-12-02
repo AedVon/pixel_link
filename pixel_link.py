@@ -347,11 +347,11 @@ def mask_to_bboxes(mask, image_shape =  None, min_area = None,
         min_height = config.min_height
     bboxes = []
     max_bbox_idx = mask.max()
-    mask = util.img.resize(img = mask, size = (image_w, image_h), 
+    mask = util.img.resize(img = mask, size = (image_w, image_h),
                            interpolation = cv2.INTER_NEAREST)
     
     for bbox_idx in xrange(1, max_bbox_idx + 1):
-        bbox_mask = mask == bbox_idx
+        bbox_mask = mask == bbox_idx    # convert to two-value(0 or 1) score map
 #         if bbox_mask.sum() < 10:
 #             continue
         cnts = util.img.find_contours(bbox_mask)
